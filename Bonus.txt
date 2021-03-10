@@ -1,0 +1,95 @@
+E.B.1:
+
+DROP TABLE IF EXISTS navers CASCADE;
+DROP TABLE IF EXISTS projects CASCADE;
+DROP TABLE IF EXISTS projects_navers;
+
+
+CREATE TABLE IF NOT EXISTS navers(
+    id serial PRIMARY KEY,
+    name VARCHAR(50),
+    birthdate TIMESTAMP NOT NULL,
+    admission_date TIMESTAMP NOT NULL,
+    job_role VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_DATE,
+    updated_at TIMESTAMP DEFAULT CURRENT_DATE
+);
+
+CREATE TABLE IF NOT EXISTS projects(
+    id serial PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_DATE,
+    updated_at TIMESTAMP DEFAULT CURRENT_DATE
+);
+
+CREATE TABLE IF NOT EXISTS projects_navers(
+    id serial PRIMARY KEY,
+    project_id INTEGER NOT NULL,
+    naver_id INTEGER NOT NULL,
+    CONSTRAINT projects_navers_naver_id_foreign FOREIGN KEY (naver_id)
+        REFERENCES navers(id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT projects_navers_project_id_foreign FOREIGN KEY (project_id)
+        REFERENCES projects(id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+
+E.B.2:
+
+TRUNCATE TABLE navers CASCADE;
+TRUNCATE TABLE projects CASCADE;
+TRUNCATE TABLE projects_navers;
+
+INSERT INTO navers(
+    name,
+    birthdate,
+    admission_date,
+    job_role
+) VALUES (
+    'JON DOE',
+    '2000-03-02 12:05:00',
+    '2016-03-02 12:05:00',
+    'Developer'
+);
+
+INSERT INTO navers(
+    name,
+    birthdate,
+    admission_date,
+    job_role
+) VALUES (
+    'JANE DOE',
+    '2000-03-02 12:05:00',
+    '2016-01-02 12:05:00',
+    'Developer'
+);
+
+INSERT INTO projects(
+	name
+) VALUES(
+	'Mobile Project'
+);
+
+INSERT INTO projects_navers(
+	project_id,
+  naver_id
+) VALUES(
+	1,
+  1
+);
+
+
+E.B.3:
+
+SELECT * FROM navers ORDER BY admission_date;
+
+
+E.B.4:
+
+SELECT projects.*, navers.name FROM projects LEFT JOIN projects_navers ON projects_navers.project_id = projects.id LEFT JOIN navers ON navers.id = projects_navers.naver_id;
+
+E.B.5: 
+
+SELECT projects.*, COUNT(navers) as navers_total FROM projects LEFT JOIN projects_navers ON projects_navers.project_id = projects.id LEFT JOIN navers ON navers.id = projects_navers.naver_id GROUP BY projects.id ORDER BY navers_total DESC;
